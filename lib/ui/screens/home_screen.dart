@@ -96,13 +96,15 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             FloatingActionButton(
-              onPressed: () => _pickPhoto,
-              child: _imageFile != null
+              heroTag: "pick",
+              onPressed: _pickPhoto,
+              child: _imageFile == null
                   ? const Icon(Icons.camera_alt_rounded)
                   : const Icon(Icons.close_rounded),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             FloatingActionButton(
+              heroTag: "scan",
               onPressed: () {
                 Navigator.push(
                   context,
@@ -124,24 +126,12 @@ class _HomeScreenState extends State<HomeScreen> {
   // Widget to build the image preview
   Widget _buildImagePreview() {
     return _imageFile != null
-        ? Column(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.5,
-                child: Image.file(File(_imageFile!.path)),
-              ),
-              IconButton.filledTonal(
-                onPressed: () {
-                  setState(() {
-                    _imageFile = null;
-                  });
-                },
-                icon: const Icon(Icons.close_rounded),
-              ),
-            ],
+        ? SizedBox(
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: Image.file(File(_imageFile!.path)),
           )
-        : Container(); // Return an empty container if no image is available
+        : const Text("Pick a photo");
   }
 
   // Widget to build the scanning indicator or scan button
