@@ -42,9 +42,9 @@ class _ScanScreenState extends State<ScanScreen> {
               setState(() {
                 _code = filter(recognizedText);
               });
-              _shouldDetect = false; // Pause detection for 2 seconds
+              _shouldDetect = false; // Pause detection for 5 seconds
               await Future.delayed(const Duration(seconds: 5));
-              _shouldDetect = true; // Resume detection after 2 seconds
+              _shouldDetect = true; // Resume detection after 5 seconds
             }
           }
         }
@@ -102,7 +102,9 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text("Scanner"),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -142,16 +144,21 @@ class _ScanScreenState extends State<ScanScreen> {
 
   // Widget to build the image preview
   Widget _buildCameraPreview() {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.3,
-      child: _cameraController != null
-          ? ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-              child: CameraPreview(_cameraController!),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.5,
+        child: _cameraController != null
+            ? Center(
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: CameraPreview(_cameraController!),
+                ),
             )
-          : const Center(
-              child: CircularProgressIndicator(strokeCap: StrokeCap.round),
-            ),
+            : const Center(
+                child: CircularProgressIndicator(strokeCap: StrokeCap.round),
+              ),
+      ),
     ); // Return an empty container if no image is available
   }
 }

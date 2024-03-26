@@ -23,8 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
       GoogleMlKit.vision.textRecognizer(); // TextRecognizer instance
   bool _isScanning = false; // Variable to track scanning state
 
-  bool _isChecking = false;
-
   @override
   void dispose() {
     _textRecognizer.close(); // Close the TextRecognizer instance
