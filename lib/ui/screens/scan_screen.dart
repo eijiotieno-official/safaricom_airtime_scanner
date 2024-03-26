@@ -142,18 +142,16 @@ class _ScanScreenState extends State<ScanScreen> {
 
   // Widget to build the image preview
   Widget _buildCameraPreview() {
-    return Expanded(
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.3,
-        child: _cameraController != null
-            ? ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-                child: CameraPreview(_cameraController!),
-              )
-            : const Center(
-                child: CircularProgressIndicator(strokeCap: StrokeCap.round),
-              ),
-      ),
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.3,
+      child: _cameraController != null
+          ? ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+              child: CameraPreview(_cameraController!),
+            )
+          : const Center(
+              child: CircularProgressIndicator(strokeCap: StrokeCap.round),
+            ),
     ); // Return an empty container if no image is available
   }
 }
