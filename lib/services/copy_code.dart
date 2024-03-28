@@ -1,5 +1,6 @@
 import 'dart:async'; // Import the async library for asynchronous operations
 import 'package:clipboard/clipboard.dart';
+import 'package:flutter/material.dart';
 import 'package:safaricom_airtime_scanner/data/database/service_providers_database.dart'; // Import the clipboard package
 
 /// Function to copy the provided code to the clipboard after adding a prefix and suffix.
@@ -15,7 +16,7 @@ Future<void> copyCode(String code) async {
           refinedCode); // Asynchronous operation to copy code
     } catch (e) {
       // Handle any errors thrown during clipboard copying
-      print('Error while copying code: $e');
+      debugPrint('Error while copying code: $e');
       throw 'Failed to copy code to clipboard';
     }
   } else {
