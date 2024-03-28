@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:safaricom_airtime_scanner/services/recharge_code.dart';
 
+/// Widget representing a button to recharge using a code.
 class RechargeButton extends StatefulWidget {
   final String code;
+
+  /// Constructor for the RechargeButton widget.
   const RechargeButton({super.key, required this.code});
 
   @override
@@ -10,26 +13,31 @@ class RechargeButton extends StatefulWidget {
 }
 
 class _RechargeButtonState extends State<RechargeButton> {
-  bool _isRecharging = false;
+  bool _isRecharging = false; // Track whether recharging is in progress
+
   @override
   Widget build(BuildContext context) {
-    return _isRecharging
-        ? const Center(
-            child: CircularProgressIndicator(
-              strokeCap: StrokeCap.round,
-            ),
-          )
-        : FilledButton.tonal(
-            onPressed: () async {
+    return ElevatedButton(
+      onPressed: _isRecharging
+          ? null // Disable the button while recharging is in progress
+          : () async {
               setState(() {
-                _isRecharging = true;
+                _isRecharging = true; // Set recharging state to true
               });
+              // Recharge the code asynchronously
               await rechargeCode(widget.code, context);
               setState(() {
-                _isRecharging = false;
+                _isRecharging = false; // Reset recharging state to false
               });
             },
-            child: const Text("Recharge"), // Display the button text
-          );
+      // Display the button text
+      child: _isRecharging
+          ? CircularProgressIndicator(
+              strokeWidth: 2.0,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).colorScheme.onPrimary),
+            )
+          : const Text("Recharge"),
+    );
   }
 }
