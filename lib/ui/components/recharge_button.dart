@@ -30,7 +30,7 @@ class _RechargeButtonState extends State<RechargeButton> {
                 _isRecharging = false;
               });
             },
-            child: const Text("Copy"),
+            child: const Text("Recharge"),
           );
   }
 }

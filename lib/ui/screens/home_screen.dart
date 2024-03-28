@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:safaricom_airtime_scanner/services/open_gallery.dart';
 import 'package:safaricom_airtime_scanner/services/scan_image_file.dart';
 import 'package:safaricom_airtime_scanner/ui/components/copy_button.dart';
+import 'package:safaricom_airtime_scanner/ui/components/recharge_button.dart';
+import 'package:safaricom_airtime_scanner/ui/screens/scan_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -110,7 +112,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             FloatingActionButton(
               heroTag: "scan",
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const ScanScreen();
+                    },
+                  ),
+                );
+              },
               child: const Icon(Icons.document_scanner_rounded),
             ),
           ],
@@ -148,15 +159,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCodeButtons() {
-    return _extractedCode.isEmpty ? const SizedBox.shrink() : Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Button to recharge with extracted code
-        
-        // Button to copy extracted code
-        CopyButton(code: _extractedCode),
-      ],
-    );
+    return _extractedCode.isEmpty
+        ? const SizedBox.shrink()
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Button to recharge with extracted code
+              RechargeButton(code: _extractedCode),
+              // Button to copy extracted code
+              CopyButton(code: _extractedCode),
+            ],
+          );
   }
 }
