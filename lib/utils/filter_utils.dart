@@ -1,13 +1,14 @@
 import 'package:google_ml_kit/google_ml_kit.dart';
 
+/// Function to filter and extract valid text from recognized text.
 String? filter(RecognizedText recognizedText) {
   String? extractedText;
 
-  // Loop through each block of text in the vision text
+  // Loop through each block of text in the recognized text
   for (TextBlock block in recognizedText.blocks) {
     final String blockText = block.text;
 
-    // Check if the block text is valid based on certain criteria
+    // Check if the block text is valid
     if (isValidText(blockText)) {
       extractedText = blockText;
       break;
@@ -17,7 +18,7 @@ String? filter(RecognizedText recognizedText) {
     for (TextLine line in block.lines) {
       final String lineText = line.text;
 
-      // Check if the line text is valid based on certain criteria
+      // Check if the line text is valid
       if (isValidText(lineText)) {
         extractedText = lineText;
         break;
@@ -27,7 +28,7 @@ String? filter(RecognizedText recognizedText) {
       for (TextElement element in line.elements) {
         final String elementText = element.text;
 
-        // Check if the element text is valid based on certain criteria
+        // Check if the element text is valid
         if (isValidText(elementText)) {
           extractedText = elementText;
           break;
@@ -43,7 +44,7 @@ String? filter(RecognizedText recognizedText) {
   return extractedText;
 }
 
-// Function to check if the text is valid based on certain criteria
+/// Function to check if the text is valid based on certain criteria.
 bool isValidText(String? text) {
   return text != null &&
       text.isNotEmpty &&
@@ -52,17 +53,17 @@ bool isValidText(String? text) {
       !containsAlphabeticCharacters(text);
 }
 
-// Function to check if the text contains whitespace characters
+/// Function to check if the text contains whitespace characters.
 bool containsWhiteSpace(String text) {
   return RegExp(r'\s').hasMatch(text);
 }
 
-// Function to check if the text contains hyphen character
+/// Function to check if the text contains a hyphen character.
 bool containsHyphen(String text) {
   return text.contains('-');
 }
 
-// Function to check if the text contains alphabetic characters
+/// Function to check if the text contains alphabetic characters.
 bool containsAlphabeticCharacters(String text) {
   return RegExp(r'[a-zA-Z]').hasMatch(text);
 }
