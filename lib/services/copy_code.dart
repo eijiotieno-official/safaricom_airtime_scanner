@@ -1,7 +1,7 @@
-import 'dart:async'; // Import the async library for asynchronous operations
+import 'dart:async';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
-import 'package:safaricom_airtime_scanner/data/database/service_providers_database.dart'; // Import the clipboard package
+import 'package:safaricom_airtime_scanner/data/database/service_providers_database.dart';
 
 /// Function to copy the provided code to the clipboard after adding a prefix and suffix.
 Future<void> copyCode(String code) async {

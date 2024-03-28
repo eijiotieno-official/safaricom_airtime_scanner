@@ -21,40 +21,44 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextRecognizer _textRecognizer =
       GoogleMlKit.vision.textRecognizer(); // TextRecognizer instance
+
   bool _isScanning = false; // Variable to track scanning state
 
-  @override
-  void dispose() {
-    _textRecognizer.close(); // Close the TextRecognizer instance
-    super.dispose();
-  }
+  String _extractedCode = ""; // Variable to store the extracted code
 
-  String _code = "";
   // Function to start scanning the image
   void _startScanning() async {
     setState(() {
       _isScanning = true; // Set scanning state to true
     });
-    final result = await scanImageFile(
-      imageFile: File(_imageFile!.path),
-      textRecognizer: _textRecognizer,
-    ); // Perform the scanning operation
-    if (result != null) {
-      setState(() {
-        _code = result;
-      });
+    try {
+      // Perform the scanning operation
+      final result = await scanImageFile(
+        imageFile: File(_imageFile!.path),
+        textRecognizer: _textRecognizer,
+      );
+      if (result != null) {
+        setState(() {
+          _extractedCode = result;
+        });
+      }
+    } catch (e) {
+      // Handle any errors that occur during scanning
+      debugPrint('Error scanning image: $e');
+      // Optionally, provide feedback to the user
     }
     setState(() {
       _isScanning = false; // Set scanning state to false
     });
   }
 
-  XFile? _imageFile;
-  // Function to capture a new photo
-  void _pickPhoto() async {
+  XFile? _imageFile; // Variable to store the selected image file
+
+  // Function to pick a new photo or clear the existing one
+  void _togglePhotoSelection() async {
     if (_imageFile == null) {
       final pickedImage =
-          await openGallery(); // Capture a new photo using the image picker
+          await openGallery(); // Pick a new photo using the image picker
       setState(() {
         _imageFile = pickedImage; // Update the image file
       });
@@ -63,6 +67,12 @@ class _HomeScreenState extends State<HomeScreen> {
         _imageFile = null;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _textRecognizer.close(); // Close the TextRecognizer instance
+    super.dispose();
   }
 
   @override
@@ -95,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             FloatingActionButton(
               heroTag: "pick",
-              onPressed: _pickPhoto,
+              onPressed: _togglePhotoSelection,
               child: _imageFile == null
                   ? const Icon(Icons.camera_alt_rounded)
                   : const Icon(Icons.close_rounded),
@@ -135,30 +145,28 @@ class _HomeScreenState extends State<HomeScreen> {
   // Widget to build the scanning indicator or scan button
   Widget _buildScanningIndicator() {
     return _isScanning
+        // Display a progress indicator while scanning
         ? const Padding(
             padding: EdgeInsets.all(8.0),
-            child: CircularProgressIndicator(
-                strokeCap: StrokeCap
-                    .round), // Display a progress indicator while scanning
+            child: CircularProgressIndicator(strokeCap: StrokeCap.round),
           )
         : _imageFile != null
+            // Display a scan button
             ? FilledButton.tonal(
-                onPressed: () async {
-                  _startScanning(); // Start scanning the image
-                },
-                child: const Text("Scan"), // Display a scan button
+                onPressed: _startScanning, // Start scanning the image
+                child: const Text("Scan"),
               )
             : Container(); // Return an empty container if no image is available
   }
 
-  Widget _buildCodeButtons() => _code.isEmpty
+  Widget _buildCodeButtons() => _extractedCode.isEmpty
       ? const SizedBox.shrink()
       : Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            RechargeButton(code: _code),
-            CopyButton(code: _code),
+            RechargeButton(code: _extractedCode),
+            CopyButton(code: _extractedCode),
           ],
         );
 }
