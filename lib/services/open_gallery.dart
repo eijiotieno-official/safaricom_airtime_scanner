@@ -1,12 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Import the image_picker package
 
-// Function to capture an image using the device camera
+/// Function to open the device gallery and select an image.
 Future<XFile?> openGallery() async {
-  final ImagePicker imagePicker =
-      ImagePicker(); // Create an instance of ImagePicker
-  // Use the pickImage method to capture an image from the device camera
-  // Specify the source as the camera and preferredCameraDevice as rear
-  return await imagePicker.pickImage(
-    source: ImageSource.gallery,
-  );
+  try {
+    final ImagePicker imagePicker =
+        ImagePicker(); // Create an instance of ImagePicker
+    // Use the pickImage method to select an image from the device gallery
+    return await imagePicker.pickImage(
+      source: ImageSource.gallery,
+    );
+  } catch (e) {
+    // Handle any errors that occur during image selection
+    debugPrint('Error selecting image: $e');
+    return null; // Return null to indicate failure
+  }
 }
