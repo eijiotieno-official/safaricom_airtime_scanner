@@ -1,11 +1,13 @@
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:safaricom_airtime_scanner/ui/components/copy_button.dart';
 import 'package:safaricom_airtime_scanner/ui/components/recharge_button.dart';
-import 'package:safaricom_airtime_scanner/utils/filter_utils.dart';
+import '../../utils/filter_utils.dart';
 
+/// Widget representing the screen for scanning airtime codes.
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
 
@@ -14,51 +16,46 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
+  final TextRecognizer _textRecognizer = GoogleMlKit.vision.textRecognizer();
+  String? _extractedCode;
+  bool _shouldDetect = true;
+
   CameraController? _cameraController;
 
   // Function to initialize the camera and start image stream
   void _initCamera() async {
-    // Get available cameras
     List<CameraDescription> cameras = await availableCameras();
-    if (cameras.isNotEmpty) {
-      setState(() {
-        _cameraController = CameraController(
-          cameras.first,
-          ResolutionPreset.medium,
-          enableAudio: false,
-        );
-      });
 
-      await _cameraController?.initialize();
-
-      await _cameraController?.startImageStream(
-        (image) async {
-          if (_shouldDetect) {
-            RecognizedText? recognizedText = await _detect(image: image);
-
-            if (mounted && recognizedText != null) {
-              setState(() {
-                _extractedCode = filter(recognizedText);
-              });
-              _shouldDetect = false;
-              await Future.delayed(
-                  const Duration(seconds: 5)); // Pause detection for 5 seconds
-              _shouldDetect = true;
-            }
-          }
-        },
+    setState(() {
+      _cameraController = CameraController(
+        cameras.first,
+        ResolutionPreset.medium,
+        enableAudio: false,
       );
-    }
+    });
+
+    await _cameraController?.initialize();
+
+    await _cameraController?.startImageStream(
+      (image) async {
+        if (_shouldDetect) {
+          RecognizedText? recognizedText = await _detect(image: image);
+          if (mounted && recognizedText != null) {
+            setState(() {
+              _extractedCode = filter(recognizedText); // Store the extracted code
+            });
+            _shouldDetect = false; // Pause detection for 5 seconds
+            await Future.delayed(const Duration(seconds: 5));
+            _shouldDetect = true; // Resume detection after 5 seconds
+          }
+        }
+      },
+    );
   }
 
-  bool _shouldDetect = true;
-  final TextRecognizer _textRecognizer = GoogleMlKit.vision.textRecognizer();
-  String? _extractedCode;
-
-  // Function to extract text from an image using Google Ml Vision
+  // Function to extract text from an image using Google ML Vision
   Future<RecognizedText?> _detect({required CameraImage image}) async {
     InputImage? inputImage = _inputImage(image: image);
-
     if (inputImage != null) {
       return await _textRecognizer.processImage(inputImage);
     } else {
@@ -95,13 +92,13 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   void initState() {
     super.initState();
-    _initCamera();
+    _initCamera(); // Initialize camera when the widget is created
   }
 
   @override
   void dispose() {
-    _cameraController?.dispose();
-    _textRecognizer.close();
+    _cameraController?.dispose(); // Dispose of the camera controller
+    _textRecognizer.close(); // Close the text recognizer
     super.dispose();
   }
 
@@ -112,64 +109,62 @@ class _ScanScreenState extends State<ScanScreen> {
         title: const Text("Scanner"),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Display camera preview
-          _buildCameraPreview(),
+          _buildCameraPreview(), // Display camera preview
           SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-          _buidlExtractedCode(),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+          if (_extractedCode != null)
+            _buildResultText(), // Display scanned code if available
+          SizedBox(height: MediaQuery.of(context).size.height * 0.01),
           _buildCodeButtons(), // Display recharge and copy buttons if code is extracted
         ],
       ),
     );
   }
 
-  Widget _buildCodeButtons() {
-    return _extractedCode == null
-        ? const SizedBox.shrink()
-        : Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Button to recharge with extracted code
-              RechargeButton(code: _extractedCode!),
-              // Button to copy extracted code
-              CopyButton(code: _extractedCode!),
-            ],
-          );
-  }
+  // Widget to build the recharge and copy buttons
+  Widget _buildCodeButtons() => _extractedCode == null
+      ? const SizedBox.shrink()
+      : Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            RechargeButton(
+                code: _extractedCode!), // Button to recharge with extracted code
+            const SizedBox(width: 20),
+            CopyButton(code: _extractedCode!), // Button to copy extracted code
+          ],
+        );
 
-  Widget _buildCameraPreview() {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.5,
-      child: _cameraController != null
-          ? Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: CameraPreview(_cameraController!),
-              ),
-            )
-          : const Center(
-              child: CircularProgressIndicator(
-                strokeCap: StrokeCap.round,
-              ),
-            ),
+  // Widget to display the scanned result
+  Widget _buildResultText() {
+    return Text(
+      _extractedCode!,
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+      ),
     );
   }
 
-  Widget _buidlExtractedCode() {
-    return _extractedCode == null
-        ? const SizedBox.shrink()
-        : Text(
-            _extractedCode!,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          );
+  // Widget to build the camera preview
+  Widget _buildCameraPreview() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.5,
+        child: _cameraController != null
+            ? Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: CameraPreview(_cameraController!),
+                ),
+              )
+            : const Center(
+                child: CircularProgressIndicator(strokeCap: StrokeCap.round),
+              ),
+      ),
+    );
   }
 }
-
-// NOTE: Use a real device, emulators fail to download the models responsible for recognizing the text.
