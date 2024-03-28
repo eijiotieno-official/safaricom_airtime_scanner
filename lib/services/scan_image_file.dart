@@ -1,13 +1,13 @@
+// Function to extract text from an image file using Google Ml Vision
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:safaricom_airtime_scanner/utils/filter_utils.dart';
 
-import '../utils/filter_utils.dart';
-
-/// Function to extract text from an image file using Google ML Vision.
 Future<String?> scanImageFile({
-  required File imageFile, // Required input: image file
-  required TextRecognizer textRecognizer, // Required input: text recognizer
+  required File imageFile,
+  required TextRecognizer textRecognizer,
 }) async {
   try {
     // Convert the image file to an InputImage
@@ -17,13 +17,12 @@ Future<String?> scanImageFile({
     final RecognizedText recognizedText =
         await textRecognizer.processImage(inputImage);
 
-    // Filter the extracted text if needed
+    // Filter the extracted text to return only the Scratch Card Code
     String? extractedText = filter(recognizedText);
 
-    return extractedText; // Return the extracted text
+    return extractedText;
   } catch (e) {
-    // Handle any exceptions that occur during image processing
     debugPrint('Error scanning image: $e');
-    return null; // Return null to indicate failure
+    return null;
   }
 }
