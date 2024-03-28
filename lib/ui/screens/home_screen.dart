@@ -8,9 +8,9 @@ import 'package:safaricom_airtime_scanner/services/scan_image_file.dart';
 import 'package:safaricom_airtime_scanner/ui/components/copy_button.dart';
 import 'package:safaricom_airtime_scanner/ui/components/recharge_button.dart';
 import 'package:safaricom_airtime_scanner/ui/screens/scan_screen.dart';
-
 import '../../services/open_gallery.dart';
 
+/// Widget representing the home screen of the app.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,12 +19,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextRecognizer _textRecognizer =
-      GoogleMlKit.vision.textRecognizer(); // TextRecognizer instance
+  final TextRecognizer _textRecognizer = GoogleMlKit.vision.textRecognizer();
+  bool _isScanning = false;
+  String _extractedCode = "";
+  XFile? _imageFile;
 
-  bool _isScanning = false; // Variable to track scanning state
-
-  String _extractedCode = ""; // Variable to store the extracted code
+  @override
+  void dispose() {
+    _textRecognizer.close();
+    super.dispose();
+  }
 
   // Function to start scanning the image
   void _startScanning() async {
@@ -39,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       if (result != null) {
         setState(() {
-          _extractedCode = result;
+          _extractedCode = result; // Store the extracted code
         });
       }
     } catch (e) {
@@ -52,27 +56,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  XFile? _imageFile; // Variable to store the selected image file
-
   // Function to pick a new photo or clear the existing one
-  void _togglePhotoSelection() async {
+  void _pickPhoto() async {
     if (_imageFile == null) {
-      final pickedImage =
-          await openGallery(); // Pick a new photo using the image picker
+      final pickedImage = await openGallery(); // Pick a new photo
       setState(() {
         _imageFile = pickedImage; // Update the image file
       });
     } else {
       setState(() {
-        _imageFile = null;
+        _imageFile = null; // Clear the existing photo
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _textRecognizer.close(); // Close the TextRecognizer instance
-    super.dispose();
   }
 
   @override
@@ -94,10 +89,10 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildImagePreview(),
+            _buildImagePreview(), // Display the selected image or prompt to pick one
             SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-            _buildScanningIndicator(),
-            _buildCodeButtons(),
+            _buildScanningIndicator(), // Display scanning indicator or scan button
+            _buildCodeButtons(), // Display recharge and copy buttons if code is extracted
           ],
         ),
         floatingActionButton: Column(
@@ -105,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             FloatingActionButton(
               heroTag: "pick",
-              onPressed: _togglePhotoSelection,
+              onPressed: _pickPhoto, // Pick a new photo or clear existing one
               child: _imageFile == null
                   ? const Icon(Icons.camera_alt_rounded)
                   : const Icon(Icons.close_rounded),
@@ -118,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) {
-                      return const ScanScreen();
+                      return const ScanScreen(); // Navigate to the scan screen
                     },
                   ),
                 );
@@ -139,7 +134,8 @@ class _HomeScreenState extends State<HomeScreen> {
             height: MediaQuery.of(context).size.height * 0.5,
             child: Image.file(File(_imageFile!.path)),
           )
-        : const Text("Pick a photo");
+        : const Text(
+            "Pick a photo"); // Prompt to pick a photo if none is selected
   }
 
   // Widget to build the scanning indicator or scan button
@@ -151,22 +147,24 @@ class _HomeScreenState extends State<HomeScreen> {
             child: CircularProgressIndicator(strokeCap: StrokeCap.round),
           )
         : _imageFile != null
-            // Display a scan button
-            ? FilledButton.tonal(
-                onPressed: _startScanning, // Start scanning the image
+            // Display a scan button if an image is selected
+            ? ElevatedButton(
+                onPressed: _startScanning,
                 child: const Text("Scan"),
               )
-            : Container(); // Return an empty container if no image is available
+            : Container(); // Return an empty container if no image is selected
   }
 
+  // Widget to build the recharge and copy buttons
   Widget _buildCodeButtons() => _extractedCode.isEmpty
       ? const SizedBox.shrink()
       : Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            RechargeButton(code: _extractedCode),
-            CopyButton(code: _extractedCode),
+            RechargeButton(
+                code: _extractedCode), // Button to recharge with extracted code
+            CopyButton(code: _extractedCode), // Button to copy extracted code
           ],
         );
 }

@@ -4,7 +4,6 @@ class ServiceProvider {
   final String name; // Name of the service provider.
 
   /// Constructs a [ServiceProvider] with the given [prefix] and [name].
-  ///
   /// Both [prefix] and [name] are required parameters.
   const ServiceProvider({
     required this.prefix,
