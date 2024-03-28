@@ -1,7 +1,9 @@
 import '../models/service_provider.dart';
 
+/// Class to store instances of service providers.
 class ServiceProvidersDatabase {
-  static ServiceProvider safaricom = ServiceProvider(
+  /// Static instance of Safaricom service provider.
+  static const ServiceProvider safaricom = ServiceProvider(
     prefix: "*141*", // Prefix for Safaricom
     name: "Safaricom",
   );
