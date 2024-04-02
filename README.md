@@ -3,9 +3,8 @@
 This repository contains the source code for the Safaricom Airtime Scanner app, a Flutter project that revolutionizes the way users recharge their mobile airtime. By leveraging Google ML Vision technology, this application offers seamless and efficient scanning of airtime scratch cards, eliminating the need for manual entry of voucher codes.
 
 
-![Screenshot 1](screenshots/screenshot1.png)
-![Screenshot 2](screenshots/screenshot2.png)
-![Screenshot 3](screenshots/screenshot3.png)
+![Screenshot 1](screenshots/Screenshot_20240328_163239.png)
+![Screenshot 2](screenshots/Screenshot_20240328_164021.png)
 
 ## Demo Video
 
